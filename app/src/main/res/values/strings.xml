@@ -9,4 +9,5 @@
     <string name="wss_state_no">denied</string>
     <string name="notification_listener_description">Notification Listener</string>
     <string name="notification_listener_button">goto</string>
+    <string name="respect_dnd_profile">Respect DND profile</string>
 </resources>

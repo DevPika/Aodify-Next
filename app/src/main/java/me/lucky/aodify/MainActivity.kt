@@ -16,6 +16,7 @@ class MainActivity : AppCompatActivity() {
 
     private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         if (key == Preferences.SERVICE_ENABLED) binding.toggle.isChecked = prefs.isServiceEnabled
+        if (key == Preferences.RESPECT_DND) binding.switchdnd.isChecked = prefs.isDNDRespected
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +56,9 @@ class MainActivity : AppCompatActivity() {
                 prefs.isServiceEnabled = isChecked
                 dozeManager.setAlwaysOn(if (isChecked) 1 else 0)
             }
+            switchdnd.setOnCheckedChangeListener { _, isChecked ->
+                prefs.isDNDRespected = isChecked
+            }
         }
     }
 
@@ -66,6 +70,7 @@ class MainActivity : AppCompatActivity() {
                 else R.string.wss_state_no
             )
             toggle.isChecked = prefs.isServiceEnabled
+            switchdnd.isChecked = prefs.isDNDRespected
         }
     }
 }

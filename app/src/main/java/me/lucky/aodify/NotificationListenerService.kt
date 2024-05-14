@@ -47,12 +47,14 @@ class NotificationListenerService : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
-        if (sbn == null || !prefs.isServiceEnabled || (
-            notificationManager.currentInterruptionFilter
-                != NotificationManager.INTERRUPTION_FILTER_ALL &&
-            notificationManager.currentInterruptionFilter
-                != NotificationManager.INTERRUPTION_FILTER_UNKNOWN
-        )) return
+        if (sbn == null || !prefs.isServiceEnabled) return
+
+        val canInterrupt = (notificationManager.currentInterruptionFilter
+                    == NotificationManager.INTERRUPTION_FILTER_ALL ||
+                notificationManager.currentInterruptionFilter
+                    == NotificationManager.INTERRUPTION_FILTER_UNKNOWN)
+        if (prefs.isDNDRespected && !canInterrupt) return
+
         notifications.plus(sbn.key)
         screenReceiver.offTimer?.cancel()
         screenReceiver.hasNotifications = true
