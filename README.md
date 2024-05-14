@@ -1,6 +1,6 @@
 # Aodify
 
-Show AOD on demand.
+Show AOD on receiving notifications.
 
 [<img
      src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
@@ -16,12 +16,19 @@ Show AOD on demand.
      width="30%"
      height="30%">
 
-Tiny app to show Always On Display on demand.  
-Tested with Google Pixel.
+Tiny app to show Always On Display on receiving notifications. While by default the app respects DND settings, you can switch the toggle off in the app to ignore current DND mode and turn on AOD for all notifications.
+As most newer phones seem to be missing a notification LED, this app can be used as a replacement.
+Tested with Google Pixel and Pixel 6a.
 
 You have to grant `WRITE_SECURE_SETTINGS` permission:
 ```sh
 $ adb shell pm grant me.lucky.aodify android.permission.WRITE_SECURE_SETTINGS
+```
+
+## Development
+You can test the notification service by sending dummy notifications via adb. For example:
+```sh
+$ adb shell cmd notification post -S bigtext -t 'Title' 'Tag' 'Multiline text'
 ```
 
 ## Permissions
