@@ -12,13 +12,13 @@ import android.service.notification.StatusBarNotification
 import java.util.*
 import kotlin.concurrent.timerTask
 
-class NotificationListenerService : NotificationListenerService() {
+class CustomNotificationListenerService : NotificationListenerService() {
     private lateinit var prefs: Preferences
     private lateinit var dozeManager: DozeManager
     private lateinit var powerManager: PowerManager
     private lateinit var notificationManager: NotificationManager
     private val screenReceiver = ScreenReceiver()
-    private val notifications = setOf<String>()
+    private val notifications = mutableSetOf<String>()
 
     override fun onCreate() {
         super.onCreate()
@@ -35,6 +35,7 @@ class NotificationListenerService : NotificationListenerService() {
         dozeManager = DozeManager(this)
         powerManager = getSystemService(PowerManager::class.java)
         notificationManager = getSystemService(NotificationManager::class.java)
+        screenReceiver.notificationListenerService = this
         registerReceiver(screenReceiver, IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_ON)
             addAction(Intent.ACTION_SCREEN_OFF)
@@ -55,7 +56,7 @@ class NotificationListenerService : NotificationListenerService() {
                     == NotificationManager.INTERRUPTION_FILTER_UNKNOWN)
         if (prefs.isDNDRespected && !canInterrupt) return
 
-        notifications.plus(sbn.key)
+        notifications.add(sbn.key)
         screenReceiver.offTimer?.cancel()
         screenReceiver.hasNotifications = true
         dozeManager.setAlwaysOn(1)
@@ -65,7 +66,7 @@ class NotificationListenerService : NotificationListenerService() {
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         super.onNotificationRemoved(sbn)
         if (sbn == null || !prefs.isServiceEnabled) return
-        notifications.minus(sbn.key)
+        notifications.remove(sbn.key)
         if (notifications.isNotEmpty()) return
         screenReceiver.offTimer?.cancel()
         screenReceiver.hasNotifications = false
@@ -80,6 +81,10 @@ class NotificationListenerService : NotificationListenerService() {
             migrateNotificationFilter(0, null)
     }
 
+    fun clearNotifications() {
+        notifications.clear()
+    }
+
     private class ScreenReceiver : BroadcastReceiver() {
         companion object {
             private const val OFF_DELAY = 2000L
@@ -87,17 +92,21 @@ class NotificationListenerService : NotificationListenerService() {
 
         var hasNotifications = false
         var offTimer: Timer? = null
+        var notificationListenerService: CustomNotificationListenerService? = null
 
         override fun onReceive(context: Context?, intent: Intent?) {
             if (!Preferences(context ?: return).isServiceEnabled) return
             val dozeManager = DozeManager(context)
+            val prefs = Preferences(context)
             when (intent?.action) {
                 Intent.ACTION_SCREEN_ON -> {
                     offTimer?.cancel()
                     dozeManager.setAlwaysOn(1)
                 }
                 Intent.ACTION_SCREEN_OFF -> {
-                    if (hasNotifications) return
+                    if (!prefs.isNotificationResetScreenOn && hasNotifications) return
+                    hasNotifications = false
+                    notificationListenerService?.clearNotifications()
                     offTimer?.cancel()
                     offTimer = Timer()
                     offTimer?.schedule(timerTask {

@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
     private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         if (key == Preferences.SERVICE_ENABLED) binding.toggle.isChecked = prefs.isServiceEnabled
         if (key == Preferences.RESPECT_DND) binding.switchdnd.isChecked = prefs.isDNDRespected
+        if (key == Preferences.RESET_NOTIFICATION_SCREEN_ON) binding.switchScreenOn.isChecked = prefs.isNotificationResetScreenOn
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +60,9 @@ class MainActivity : AppCompatActivity() {
             switchdnd.setOnCheckedChangeListener { _, isChecked ->
                 prefs.isDNDRespected = isChecked
             }
+            switchScreenOn.setOnCheckedChangeListener { _, isChecked ->
+                prefs.isNotificationResetScreenOn = isChecked
+            }
         }
     }
 
@@ -71,6 +75,7 @@ class MainActivity : AppCompatActivity() {
             )
             toggle.isChecked = prefs.isServiceEnabled
             switchdnd.isChecked = prefs.isDNDRespected
+            switchScreenOn.isChecked = prefs.isNotificationResetScreenOn
         }
     }
 }

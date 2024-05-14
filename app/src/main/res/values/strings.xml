@@ -9,5 +9,6 @@
     <string name="wss_state_no">denied</string>
     <string name="notification_listener_description">Notification Listener</string>
     <string name="notification_listener_button">goto</string>
-    <string name="respect_dnd_profile">Respect DND profile</string>
+    <string name="setting_respect_dnd_profile">Respect DND profile</string>
+    <string name="setting_reset_notification_screen_on">Reset notification status when screen turned on</string>
 </resources>
